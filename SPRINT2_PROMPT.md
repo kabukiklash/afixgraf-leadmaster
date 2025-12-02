@@ -39,6 +39,7 @@ Entregar um MVP navegável para as vendedoras (painel de atendimento) e preparar
 - Variáveis de ambiente documentadas em `.env.example` (tokens JWT, URLs backend/frontend, Supabase, n8n).
 - Scripts npm: `dev`, `start`, `test`, `lint`, `build` (frontend e backend).
 - Documentar no `backend/README.md` e em um `frontend/README.md` novo como iniciar, rodar testes e fluxo de autenticação.
+- Nomear branches, commits e PRs de forma descritiva e curta; manter convenção de commits em português.
 
 ## 5) Entregáveis esperados ao final da Sprint 2
 - Código backend com novas rotas, autenticação e testes passando.
