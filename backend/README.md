@@ -1,4 +1,4 @@
-# Backend de Atendimento
+# Backend de Atendimento - Sprint 2
 
 Este projeto fornece uma API para gerenciar o atendimento, permitindo assumir conversas, enviar mensagens e reativar o atendimento via IA.
 
@@ -8,13 +8,21 @@ Este projeto fornece uma API para gerenciar o atendimento, permitindo assumir co
 backend/
 ├── app.js                      # Ponto de entrada da aplicação
 ├── controllers/
-│   └── atendimentoController.js # Controladores das rotas
+│   ├── atendimentoController.js # Controladores de ações (assumir, pausar, enviar)
+│   ├── authController.js        # Controlador de autenticação
+│   └── leadsController.js       # Controlador de listagem de leads
 ├── services/
-│   └── atendimentoService.js    # Lógica de negócios e integração com Supabase/n8n
+│   ├── atendimentoService.js    # Lógica de negócios de atendimento
+│   ├── authService.js           # Lógica de autenticação
+│   └── leadsService.js          # Lógica de busca de leads
+├── middleware/
+│   └── authMiddleware.js        # Middleware de proteção de rotas (JWT)
+├── utils/
+│   └── logger.js                # Utilitário de log
 ├── db/
 │   └── supabaseClient.js        # Configuração do cliente Supabase
-├── database.sql                 # Scripts SQL para criação das tabelas
-└── .env.example                 # Exemplo de variáveis de ambiente
+├── database.sql                 # Scripts SQL iniciais
+└── update_db_sprint2.sql        # Scripts SQL da Sprint 2
 ```
 
 ## Configuração
@@ -26,21 +34,18 @@ backend/
    ```
 
 2. **Configurar variáveis de ambiente:**
-   - Copie o arquivo `.env.example` para `.env`:
-     ```bash
-     cp .env.example .env
-     ```
-   - Preencha as variáveis no arquivo `.env`:
+   - Copie o arquivo `.env.example` para `.env` e preencha:
      - `SUPABASE_URL`: URL do seu projeto Supabase.
      - `SUPABASE_SERVICE_KEY`: Chave de serviço (service_role) do Supabase.
-     - `N8N_WEBHOOK_URL`: URL do webhook do n8n para envio de mensagens.
+     - `N8N_WEBHOOK_URL`: URL do webhook do n8n.
+     - `JWT_SECRET`: Segredo para assinatura de tokens (ex: uma string aleatória longa).
 
-3. **Configurar Banco de Dados:**
-   - Execute o script `database.sql` no SQL Editor do seu projeto Supabase para criar as tabelas necessárias.
+3. **Atualizar Banco de Dados:**
+   - Execute o script `update_db_sprint2.sql` no SQL Editor do Supabase para adicionar a coluna `password_hash` à tabela `vendedoras`.
 
 ## Execução
 
-- **Modo de desenvolvimento (com hot-reload):**
+- **Modo de desenvolvimento:**
   ```bash
   npm run dev
   ```
@@ -52,32 +57,21 @@ backend/
 
 ## Endpoints
 
-### 1. Assumir Atendimento
-**POST** `/assumir-atendimento`
-- **Body:**
-  ```json
-  {
-    "telefone": "5511999999999",
-    "responsavel": "Nome do Atendente"
-  }
-  ```
+### Autenticação
+- **POST** `/login`: `{ "email": "...", "password": "..." }` -> Retorna Token JWT.
 
-### 2. Enviar Mensagem
-**POST** `/enviar-mensagem`
-- **Body:**
-  ```json
-  {
-    "telefone": "5511999999999",
-    "mensagem": "Olá, como posso ajudar?",
-    "responsavel": "Nome do Atendente"
-  }
-  ```
+### Leads (Protegido)
+- **GET** `/leads`: Lista leads paginados. Query params: `page`, `limit`, `search`.
+- **GET** `/leads/:telefone/messages`: Histórico de mensagens.
 
-### 3. Reativar Atendimento (IA)
-**POST** `/reativar-atendimento`
-- **Body:**
-  ```json
-  {
-    "telefone": "5511999999999"
-  }
-  ```
+### Ações (Protegido)
+- **POST** `/assumir-atendimento`: `{ "telefone": "..." }`
+- **POST** `/pausar-atendimento`: `{ "telefone": "..." }`
+- **POST** `/reativar-atendimento`: `{ "telefone": "..." }`
+- **POST** `/enviar-mensagem`: `{ "telefone": "...", "mensagem": "..." }`
+
+## Testes
+Para rodar os testes (se configurados):
+```bash
+npm test
+```
